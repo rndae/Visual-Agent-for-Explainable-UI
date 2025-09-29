@@ -1,0 +1,10 @@
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+transformers>=4.49
+pillow>=9.0.0
+opencv-python>=4.5.0
+numpy>=1.21.0
+mss>=6.1.0
+huggingface-hub>=0.16.0
+vllm==0.6.6
