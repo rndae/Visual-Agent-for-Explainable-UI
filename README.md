@@ -1,4 +1,4 @@
-# OmniParser v2 - UI Element Detection
+# Visual Agent for Explainable UI with OmniParserv2
 
 Implementation of UI parsing using computer vision for detecting and analyzing UI elements in screenshots.
 
