@@ -24,6 +24,7 @@ MANIFEST
 
 # Virtual environments
 .venv/
+.venv-qwen/
 venv/
 ENV/
 env/
@@ -50,6 +51,7 @@ data/outputs/*.txt
 data/screenshots/*.png
 local-README.md
 *.log
+local-vlm-logic.md
 
 # Jupyter
 .ipynb_checkpoints

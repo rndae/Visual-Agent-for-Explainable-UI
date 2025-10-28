@@ -1,0 +1,22 @@
+# Requirements for Qwen3-VL environment
+# This environment uses latest transformers for Qwen3-VL support
+# Install with: pip install -r requirements-qwen.txt
+
+# Core Qwen3-VL dependencies
+git+https://github.com/huggingface/transformers
+torch>=2.0.0
+torchvision
+accelerate
+pillow
+
+# OmniParser dependencies (needed since VLM CLI imports UIParser)
+opencv-python
+matplotlib
+easyocr
+ultralytics>=8.3.70
+supervision>=0.18.0
+timm
+einops>=0.8.0
+
+# Optional but recommended
+qwen-vl-utils

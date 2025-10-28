@@ -1,11 +1,21 @@
-"""Core UI parsing functionality."""
+"""Core UI parsing functionality using OmniParser v2."""
 
+import sys
+import os
 import cv2
 import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+import torch
+
+project_root = Path(__file__).parent.parent.parent
+omniparser_path = project_root / "weights" / "OmniParser"
+sys.path.insert(0, str(omniparser_path))
+
+from util.utils import get_yolo_model, get_caption_model_processor, check_ocr_box, get_som_labeled_img
+
 from ..config import PARSING_CONFIDENCE_THRESHOLD
 
 
@@ -128,65 +138,72 @@ class ParseResult:
 class UIParser:
     def __init__(self):
         self.confidence_threshold = PARSING_CONFIDENCE_THRESHOLD
+        self._initialize_models()
     
-    def parse(self, img: Image.Image) -> ParseResult:
+    def _initialize_models(self):
+        weights_path = Path(__file__).parent.parent.parent / "weights" / "OmniParser" / "weights"
+        
+        self.yolo_model = get_yolo_model(model_path=str(weights_path / "icon_detect" / "model.pt"))
+        self.caption_model_processor = get_caption_model_processor(
+            model_name="florence2", 
+            model_name_or_path=str(weights_path / "icon_caption_florence")
+        )
+    
+    def parse(self, img: Image.Image, box_threshold: float = 0.05, iou_threshold: float = 0.1, use_paddleocr: bool = False, imgsz: int = 640) -> ParseResult:
         elements = []
         
-        img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+        img_array = np.array(img)
         
-        button_elements = self._detect_buttons(gray)
-        text_elements = self._detect_text_regions(gray)
+        ocr_bbox_rslt, is_goal_filtered = check_ocr_box(
+            img, 
+            display_img=False, 
+            output_bb_format='xyxy', 
+            goal_filtering=None, 
+            easyocr_args={'paragraph': False, 'text_threshold': 0.9}, 
+            use_paddleocr=use_paddleocr
+        )
+        text, ocr_bbox = ocr_bbox_rslt
         
-        elements.extend(button_elements)
-        elements.extend(text_elements)
+        box_overlay_ratio = img.size[0] / 3200
+        draw_bbox_config = {
+            'text_scale': 0.8 * box_overlay_ratio,
+            'text_thickness': max(int(2 * box_overlay_ratio), 1),
+            'text_padding': max(int(3 * box_overlay_ratio), 1),
+            'thickness': max(int(3 * box_overlay_ratio), 1),
+        }
+        
+        dino_labled_img, label_coordinates, parsed_content_list = get_som_labeled_img(
+            img, 
+            self.yolo_model, 
+            BOX_TRESHOLD=box_threshold, 
+            output_coord_in_ratio=False, 
+            ocr_bbox=ocr_bbox,
+            draw_bbox_config=draw_bbox_config, 
+            caption_model_processor=self.caption_model_processor, 
+            ocr_text=text,
+            iou_threshold=iou_threshold, 
+            imgsz=imgsz,
+        )
+        
+        for idx, element_dict in enumerate(parsed_content_list):
+            element_type = element_dict.get('type', 'button')
+            element_content = element_dict.get('content', '')
+            bbox_ratio = element_dict.get('bbox', [0, 0, 0, 0])
+            
+            w, h = img.size
+            x1 = int(bbox_ratio[0] * w)
+            y1 = int(bbox_ratio[1] * h)
+            x2 = int(bbox_ratio[2] * w)
+            y2 = int(bbox_ratio[3] * h)
+            
+            element = UIElement(
+                type=element_type,
+                text=element_content if isinstance(element_content, str) else "",
+                bbox=(x1, y1, x2, y2),
+                confidence=0.7
+            )
+            elements.append(element)
         
         filtered_elements = [e for e in elements if e.confidence >= self.confidence_threshold]
         
         return ParseResult(elements=filtered_elements)
-    
-    def _detect_buttons(self, gray: np.ndarray) -> List[UIElement]:
-        elements = []
-        
-        edges = cv2.Canny(gray, 50, 150)
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if 500 < area < 10000:
-                x, y, w, h = cv2.boundingRect(contour)
-                aspect_ratio = w / h
-                
-                if 0.5 <= aspect_ratio <= 4.0:
-                    element = UIElement(
-                        type="button",
-                        text="",
-                        bbox=(x, y, x + w, y + h),
-                        confidence=0.7
-                    )
-                    elements.append(element)
-        
-        return elements
-    
-    def _detect_text_regions(self, gray: np.ndarray) -> List[UIElement]:
-        elements = []
-        
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        dilated = cv2.dilate(gray, kernel, iterations=2)
-        contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if 100 < area < 5000:
-                x, y, w, h = cv2.boundingRect(contour)
-                
-                if w > 20 and h > 10:
-                    element = UIElement(
-                        type="text",
-                        text="",
-                        bbox=(x, y, x + w, y + h),
-                        confidence=0.6
-                    )
-                    elements.append(element)
-        
-        return elements

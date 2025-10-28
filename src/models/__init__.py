@@ -1,5 +1,7 @@
 """Models module."""
 
-from .granite_vlm import GraniteVLM
-
-__all__ = ["GraniteVLM"]
+try:
+    from .granite_vlm import GraniteVLM
+    __all__ = ["GraniteVLM"]
+except ImportError:
+    __all__ = []
