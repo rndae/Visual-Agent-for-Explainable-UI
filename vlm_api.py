@@ -7,6 +7,10 @@ import sys
 import logging
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add to path
 sys.path.insert(0, str(Path.cwd()))
@@ -14,6 +18,7 @@ sys.path.insert(0, str(Path.cwd() / "src"))
 
 from vlm_client import QwenVLMClient
 from llm_client import LLMClient
+from azure_llm_client import AzureLLMClient
 from api_config import get_config
 from flask import Flask, request, jsonify, g
 from flask_cors import CORS
@@ -47,6 +52,23 @@ CORS(app, origins=config.security.allowed_origins)
 qwen_online_client: Optional[OpenAI] = None
 vlm_client: Optional[QwenVLMClient] = None
 llm_client: Optional[LLMClient] = None
+azure_llm_client: Optional[AzureLLMClient] = None
+
+# Priority: Azure OpenAI > Local LLM
+if config.azure_openai.enabled:
+    if config.azure_openai.endpoint and config.azure_openai.api_key:
+        logger.info("Initializing Azure OpenAI client...")
+        azure_llm_client = AzureLLMClient(
+            endpoint=config.azure_openai.endpoint,
+            api_key=config.azure_openai.api_key,
+            api_version=config.azure_openai.api_version,
+            deployment_name=config.azure_openai.deployment_name,
+            max_tokens=config.azure_openai.max_tokens,
+            temperature=config.azure_openai.temperature
+        )
+        logger.info("✓ Azure OpenAI client ready")
+    else:
+        logger.warning("Azure OpenAI enabled but credentials not set in .env file")
 
 if config.online_model.enabled:
     if config.dashscope_api_key:
@@ -66,7 +88,7 @@ if config.local_model.enabled:
     vlm_client = QwenVLMClient(auto_load=config.local_model.auto_load)
     logger.info("✓ Local VLM client ready")
 
-if config.llm.enabled:
+if config.llm.enabled and not azure_llm_client:
     logger.info("Initializing LLM client...")
     llm_client = LLMClient(
         model_name=config.llm.model_name,
@@ -271,14 +293,15 @@ Format: Click(x,y,id,"desc") | Type(x,y,id,"field","text") | Submit(x,y,id,"btn"
 @require_api_key
 def parse_ui_llm():
     """
-    Text-only LLM parsing using Llama 3.1 8B (fast, no image required)
+    Text-only LLM parsing using Azure OpenAI (o1-mini) or local models (Phi-4, Gemma, Llama)
     Uses only OmniParser text analysis for reasoning
     """
-    if not config.llm.enabled:
-        return jsonify({"status": "error", "error": "LLM model is disabled"}), 503
+    # Check if either Azure or local LLM is available
+    if not config.llm.enabled and not config.azure_openai.enabled:
+        return jsonify({"status": "error", "error": "LLM models are disabled"}), 503
     
-    if llm_client is None:
-        return jsonify({"status": "error", "error": "LLM client not initialized"}), 503
+    if llm_client is None and azure_llm_client is None:
+        return jsonify({"status": "error", "error": "No LLM client initialized"}), 503
     
     try:
         data = request.json
@@ -302,13 +325,20 @@ def parse_ui_llm():
         
         logger.info(f"Processing LLM request: {user_command[:50]}...")
         
-        result = llm_client.run_with_omniparser(
-            analysis_txt_path=analysis_path,
-            analysis_text=analysis_text if analysis_text else None,
-            user_command=user_command
-        )
+        # Use Azure OpenAI if available, otherwise local LLM
+        if azure_llm_client:
+            result = azure_llm_client.run_with_omniparser(
+                analysis_path=analysis_path,
+                user_command=user_command
+            )
+        else:
+            result = llm_client.run_with_omniparser(
+                analysis_txt_path=analysis_path,
+                analysis_text=analysis_text if analysis_text else None,
+                user_command=user_command
+            )
         
-        logger.info("LLM request completed successfully")
+        logger.info("✓ Action plan generated")
         return jsonify({"status": "success", "data": result})
     
     except Exception as e:
@@ -388,10 +418,20 @@ if __name__ == "__main__":
     if config.online_model.enabled:
         print(f"    - Provider: {config.online_model.provider}")
         print(f"    - Model: {config.online_model.model_name}")
-    print(f"  • LLM (Text):   {'✓ Enabled' if config.llm.enabled else '✗ Disabled'}")
-    if config.llm.enabled:
-        print(f"    - Model: {config.llm.model_name}")
-        print(f"    - Device: {config.llm.device}")
+    
+    # Show Azure OpenAI or local LLM status
+    if config.azure_openai.enabled and azure_llm_client:
+        print(f"  • Azure OpenAI: ✓ Enabled")
+        print(f"    - Deployment: {config.azure_openai.deployment_name}")
+        print(f"    - Endpoint: {config.azure_openai.endpoint}")
+    elif config.llm.enabled:
+        print(f"  • LLM (Text):   {'✓ Enabled' if config.llm.enabled else '✗ Disabled'}")
+        if config.llm.enabled:
+            print(f"    - Model: {config.llm.model_name}")
+            print(f"    - Device: {config.llm.device}")
+    else:
+        print(f"  • LLM (Text):   ✗ Disabled")
+    
     print(f"  • Authentication: {'✓ Required' if config.security.require_api_key else '✗ Optional'}")
     print(f"  • Rate Limiting: {'✓ Enabled' if config.rate_limit.enabled else '✗ Disabled'}")
     print(f"\nEndpoints:")

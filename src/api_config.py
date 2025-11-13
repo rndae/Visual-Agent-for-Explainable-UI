@@ -51,6 +51,18 @@ class LLMConfig:
 
 
 @dataclass
+class AzureOpenAIConfig:
+    """Azure OpenAI configuration"""
+    enabled: bool
+    endpoint: Optional[str]
+    api_key: Optional[str]
+    api_version: str
+    deployment_name: str
+    max_tokens: int
+    temperature: float
+
+
+@dataclass
 class APIConfig:
     """API metadata configuration"""
     name: str
@@ -102,6 +114,7 @@ class Config:
         self.local_model = self._init_local_model_config()
         self.online_model = self._init_online_model_config()
         self.llm = self._init_llm_config()
+        self.azure_openai = self._init_azure_openai_config()
         self.logging = self._init_logging_config()
         self.security = self._init_security_config()
         self.rate_limit = self._init_rate_limit_config()
@@ -202,6 +215,21 @@ class Config:
             max_new_tokens=int(llm.get("max_new_tokens", 512)),
             auto_load=llm.get("auto_load", True),
             quantization=llm.get("quantization")
+        )
+    
+    def _init_azure_openai_config(self) -> AzureOpenAIConfig:
+        """Initialize Azure OpenAI configuration"""
+        models = self._config_data.get("models", {})
+        azure = models.get("azure_openai", {})
+        
+        return AzureOpenAIConfig(
+            enabled=self._get_env_or_config("AZURE_OPENAI_ENABLED", ["models", "azure_openai", "enabled"], False),
+            endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION", azure.get("api_version", "2024-02-15-preview")),
+            deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", azure.get("deployment_name", "o1-mini")),
+            max_tokens=int(azure.get("max_tokens", 512)),
+            temperature=float(azure.get("temperature", 0.7))
         )
     
     def _init_logging_config(self) -> LoggingConfig:

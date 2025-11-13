@@ -27,7 +27,7 @@ models:
     max_retries: 3
   
   llm:
-    enabled: true
+    enabled: false  # Disabled - using Azure OpenAI instead
     model_name: "microsoft/Phi-4-mini-instruct"  # NEW! Phi-4 (3.8B, 128K ctx, Feb 2025)
     # Alternative models:
     # - "google/gemma-2-9b" (WORKING PERFECTLY! 9B params, great with 4bit)
@@ -35,11 +35,24 @@ models:
     # - "meta-llama/Meta-Llama-3.1-8B-Instruct" (8B params)
     # - "microsoft/Phi-3-mini-128k-instruct" (⚠️ cache compatibility issue)
     # - "microsoft/Phi-4-mini-instruct" (3.8B, 200K vocab, best reasoning)
+    # - "azure/o1-mini" (Azure OpenAI, requires AZURE_OPENAI_* env vars)
     device: "cuda"  # auto, cuda, cpu, mps
     torch_dtype: "bfloat16"  # bfloat16, float16, float32
     max_new_tokens: 512
     auto_load: true
     quantization: "4bit"  # null, "8bit", "4bit" (requires bitsandbytes)
+  
+  azure_openai:
+    enabled: true  # ✓ ENABLED - Using Azure OpenAI o1-mini
+    # Credentials loaded from .env file:
+    # - AZURE_OPENAI_ENDPOINT
+    # - AZURE_OPENAI_API_KEY
+    # - AZURE_OPENAI_API_VERSION
+    # - AZURE_OPENAI_DEPLOYMENT_NAME
+    deployment_name: "gpt-5-nano"  # Override via AZURE_OPENAI_DEPLOYMENT_NAME
+    api_version: "2025-01-01-preview"  # Override via AZURE_OPENAI_API_VERSION
+    max_tokens: 4096  # Increased for reasoning models (gpt-5-nano, o1-mini)
+    temperature: 0.7
     
 prompts:
   system_message: |
