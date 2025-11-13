@@ -83,3 +83,6 @@ temp/
 ..env
 .env-local
 .env.local
+
+# local configs
+azure-config.yaml
