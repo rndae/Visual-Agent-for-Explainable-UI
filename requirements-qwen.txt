@@ -9,6 +9,9 @@ torchvision
 accelerate
 pillow
 
+# Quantization support (optional but recommended)
+bitsandbytes>=0.41.0
+
 # OmniParser dependencies (needed since VLM CLI imports UIParser)
 opencv-python
 matplotlib
@@ -17,6 +20,12 @@ ultralytics>=8.3.70
 supervision>=0.18.0
 timm
 einops>=0.8.0
+
+# API dependencies
+flask>=3.0.0
+flask-cors>=4.0.0
+openai>=1.0.0
+pyyaml>=6.0.0
 
 # Optional but recommended
 qwen-vl-utils

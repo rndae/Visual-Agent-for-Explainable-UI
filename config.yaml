@@ -1,0 +1,64 @@
+# VLM API Configuration
+# Professional configuration for production deployment
+
+server:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+  
+api:
+  name: "VLM Parsing API"
+  version: "1.0.0"
+  base_path: "/api"
+  
+models:
+  local:
+    enabled: false
+    model_name: "Qwen/Qwen2-VL-7B-Instruct"
+    device: "cuda"  # cuda, cpu, mps
+    auto_load: true
+    
+  online:
+    enabled: false
+    provider: "dashscope"
+    model_name: "qwen-vl-plus"
+    base_url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    timeout: 30
+    max_retries: 3
+  
+  llm:
+    enabled: true
+    model_name: "google/gemma-2-9b"  # Default: Gemma 2 9B "google/gemma-2-9b"
+    # Alternative models:
+    # - "google/gemma-2-9b-it" (instruction-tuned)
+    # - "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    device: "cuda"  # auto, cuda, cpu, mps
+    torch_dtype: "bfloat16"  # bfloat16, float16, float32
+    max_new_tokens: 512
+    auto_load: true
+    quantization: "4bit"  # null, "8bit", "4bit" (requires bitsandbytes)
+    
+prompts:
+  system_message: |
+    You are a UI automation assistant that generates executable action commands.
+    Analyze the UI elements and user task to create a precise action sequence.
+    
+  action_format: |
+    Use these command formats:
+    Click(x, y, element_id, "element_description")
+    Type(x, y, element_id, "field_name", "text_to_enter")
+    Submit(x, y, element_id, "button_name")
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "[%(asctime)s] %(levelname)s - %(message)s"
+  
+security:
+  require_api_key: false  # Set true for production
+  allowed_origins:
+    - "*"  # Configure CORS properly for production
+  max_content_length: 16777216  # 16MB max request size
+  
+rate_limiting:
+  enabled: false  # Enable for production
+  requests_per_minute: 60

@@ -53,6 +53,13 @@ data/screenshots/*.png
 local-README.md
 *.log
 local-vlm-logic.md
+test-vlm-wrapper-api.txt
+VLM_API_USAGE.md
+LLM_MODE.md
+DEPLOYMENT.md
+ARCHITECTURE.md
+API_SUMMARY.md
+weights/OmniParser/
 
 # Jupyter
 .ipynb_checkpoints
