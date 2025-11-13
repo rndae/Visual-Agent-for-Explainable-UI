@@ -34,9 +34,11 @@ class LLMClient:
         
         Args:
             model_name: HuggingFace model identifier
-                - google/gemma-2-9b (default)
+                - google/gemma-2-9b (default, working great!)
                 - google/gemma-2-9b-it (instruction-tuned)
                 - meta-llama/Meta-Llama-3.1-8B-Instruct
+                - microsoft/Phi-3-mini-128k-instruct (⚠️ cache issues with current transformers)
+                - microsoft/Phi-4-mini-instruct (NEW! 3.8B, 128K context, better reasoning)
             device: Device placement (auto, cuda, cpu, mps)
             torch_dtype: Torch data type (bfloat16, float16, float32)
             max_new_tokens: Maximum tokens to generate
@@ -68,6 +70,13 @@ class LLMClient:
         logger.info(f"Loading LLM model: {self.model_name}")
         logger.info(f"Device: {self.device}, dtype: {self.torch_dtype}")
         
+        # Check if model requires trust_remote_code (Phi-3, Phi-4)
+        trust_remote_code = "phi" in self.model_name.lower()
+        
+        # Phi-3 needs eager attention, Phi-4 works fine with default
+        is_phi3 = "phi-3" in self.model_name.lower()
+        attn_implementation = "eager" if is_phi3 else None
+        
         if self.quantization:
             logger.info(f"Quantization: {self.quantization}")
         
@@ -85,13 +94,24 @@ class LLMClient:
                 else:
                     raise ValueError(f"Unsupported quantization: {self.quantization}")
                 
+                # Build model kwargs
+                model_kwargs = {
+                    "quantization_config": quantization_config,
+                    "device_map": self.device if self.device != "auto" else "auto",
+                    "trust_remote_code": trust_remote_code,
+                }
+                if attn_implementation:
+                    model_kwargs["attn_implementation"] = attn_implementation
+                
                 model = AutoModelForCausalLM.from_pretrained(
                     self.model_name,
-                    quantization_config=quantization_config,
-                    device_map=self.device if self.device != "auto" else "auto",
+                    **model_kwargs
                 )
                 
-                tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+                tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_name,
+                    trust_remote_code=trust_remote_code
+                )
                 
                 # Create pipeline with pre-loaded model
                 self.pipeline = transformers.pipeline(
@@ -101,7 +121,12 @@ class LLMClient:
                 )
             else:
                 # Standard pipeline loading (no quantization)
-                model_kwargs = {"torch_dtype": self.torch_dtype}
+                model_kwargs = {
+                    "torch_dtype": self.torch_dtype,
+                    "trust_remote_code": trust_remote_code
+                }
+                if attn_implementation:
+                    model_kwargs["attn_implementation"] = attn_implementation
                 
                 self.pipeline = transformers.pipeline(
                     "text-generation",

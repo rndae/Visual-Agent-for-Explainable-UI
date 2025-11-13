@@ -28,10 +28,13 @@ models:
   
   llm:
     enabled: true
-    model_name: "google/gemma-2-9b"  # Default: Gemma 2 9B "google/gemma-2-9b"
+    model_name: "microsoft/Phi-4-mini-instruct"  # NEW! Phi-4 (3.8B, 128K ctx, Feb 2025)
     # Alternative models:
-    # - "google/gemma-2-9b-it" (instruction-tuned)
-    # - "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    # - "google/gemma-2-9b" (WORKING PERFECTLY! 9B params, great with 4bit)
+    # - "google/gemma-2-9b-it" (instruction-tuned version)
+    # - "meta-llama/Meta-Llama-3.1-8B-Instruct" (8B params)
+    # - "microsoft/Phi-3-mini-128k-instruct" (⚠️ cache compatibility issue)
+    # - "microsoft/Phi-4-mini-instruct" (3.8B, 200K vocab, best reasoning)
     device: "cuda"  # auto, cuda, cpu, mps
     torch_dtype: "bfloat16"  # bfloat16, float16, float32
     max_new_tokens: 512

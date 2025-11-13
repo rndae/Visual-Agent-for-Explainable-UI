@@ -76,3 +76,10 @@ weights/OmniParser/
 tmp/
 temp/
 *.tmp
+
+# Environment files
+.env
+.env-qwen
+..env
+.env-local
+.env.local
