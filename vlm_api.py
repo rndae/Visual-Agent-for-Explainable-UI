@@ -329,6 +329,7 @@ def parse_ui_llm():
         if azure_llm_client:
             result = azure_llm_client.run_with_omniparser(
                 analysis_path=analysis_path,
+                analysis_text=analysis_text if analysis_text else None,
                 user_command=user_command
             )
         else:

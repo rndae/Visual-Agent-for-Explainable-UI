@@ -1,0 +1,29 @@
+1. User Input (Frontend - Port 5173)
+The user goes to the web interface and provides two things: an image of the interface they want to interact with, and a text instruction like "Fill the form with Mr. Porcupine, phone number 123...". The frontend sends both to the backend.
+
+Note: Right now it accepts image uploads as option. Maybe later, users should also be able to paste a website URL, and the backend will automatically take a screenshot of that page before processing.
+
+2. Backend Receives Request (Port 8080)
+The FastAPI backend gets the image and instruction. It coordinates everything, first getting OmniParser to analyze the interface, then sending that analysis plus the user's instruction to the LLM at port 5000, and finally returning the action plan to the frontend.
+
+3. OmniParser Analyzes the Interface
+Current setup: The backend just loads a pre-processed file at form-example-2_analysis.txt. This file already has all the detected buttons, text fields, and their locations from when we ran OmniParser earlier. This lets us test everything without waiting for OmniParser every time.
+
+Future setup: The backend will send the screenshot to OmniParser (handled by 8080 to get from huggingface's API), which will detect all UI elements in real-time. It returns a text file listing every button, field, and label with their screen coordinates.
+
+4. LLM Generates Action Plan (Port 5000)
+The backend sends two things to the LLM API at /api/llm/parse: the OmniParser analysis (all the detected UI elements) and the user's instruction. The LLM reads both and figures out what actions are needed.
+
+The LLM returns a step-by-step plan like: Click at coordinates (173, 225) on the "Name" field, type "Mr. Porcupine", click at (180, 310) on the "Phone" field, type "123", etc. Each action has exact coordinates from the OmniParser data.
+
+Note: We're using Phi-4 right now (takes ~9-15 seconds, runs locally). We can also use Gemma-2-9b (takes 1min but can give more complex explanaitions or plans) locally or switch to Azure OpenAI models like o1-mini or gpt-5-nano (takes the same as Phi-4 but requires some extra api setup and network config since it uses my Azure OpenAI) through the config. Azure models cost money per request but might be smarter for complex tasks.
+
+5. Frontend Shows the Plan (Almost Built)
+The backend packages the action plan into JSON and sends it back to the frontend. Right now the current frontend doesn't show it, it's just the input part, but it works.
+
+Note: The frontend should show visual overlays on the screenshot, draw boxes around each element the plan will interact with, number the steps, maybe animate the sequence?. This way users can verify the LLM picked the right buttons before anything actually executes.
+
+6. Execution (Not Built Yet)
+Eventually we'll add code to actually perform these actions - using Selenium for websites or PyAutoGUI for desktop apps. This part will read the action plan and simulate mouse clicks, keyboard typing, etc.
+
+Note: This needs good error handling. If an element moves or the page changes, the coordinates won't match. We'll need to retry actions, verify each step worked, and maybe have a way to undo if something breaks.

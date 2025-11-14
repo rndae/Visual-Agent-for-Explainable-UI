@@ -1,0 +1,3 @@
+[submodule "web_system"]
+	path = web_system
+	url = https://github.com/Alejandro-Fuste/AI-visual-agent.git

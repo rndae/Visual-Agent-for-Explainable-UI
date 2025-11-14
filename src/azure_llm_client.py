@@ -160,15 +160,17 @@ Generate a numbered list of actions to accomplish this task."""
     
     def run_with_omniparser(
         self,
-        analysis_path: str,
-        user_command: str,
+        analysis_path: str = None,
+        analysis_text: str = None,
+        user_command: str = "",
         system_prompt: str = None
     ) -> Dict[str, str]:
         """
         Compatible interface for OmniParser integration
         
         Args:
-            analysis_path: Path to OmniParser analysis file
+            analysis_path: Path to OmniParser analysis file (optional if analysis_text provided)
+            analysis_text: Direct analysis text (optional if analysis_path provided)
             user_command: User's command
             system_prompt: Optional system prompt
             
@@ -177,16 +179,23 @@ Generate a numbered list of actions to accomplish this task."""
         """
         logger.info(f"Generating action plan for: {user_command[:50]}...")
         
-        # Read analysis file
-        with open(analysis_path, 'r') as f:
-            analysis_text = f.read()
+        # Get analysis text from either source
+        if analysis_text:
+            text = analysis_text
+            source = "direct"
+        elif analysis_path:
+            with open(analysis_path, 'r') as f:
+                text = f.read()
+            source = analysis_path
+        else:
+            raise ValueError("Either analysis_path or analysis_text must be provided")
         
         # Generate action plan
-        action_plan = self.generate_action_plan(analysis_text, user_command, system_prompt)
+        action_plan = self.generate_action_plan(text, user_command, system_prompt)
         
         return {
             "action_plan": action_plan,
             "user_command": user_command,
-            "analysis_path": analysis_path,
+            "analysis_source": source,
             "model": f"azure/{self.deployment_name}"
         }
