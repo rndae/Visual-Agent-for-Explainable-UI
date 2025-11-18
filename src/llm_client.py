@@ -233,25 +233,42 @@ class LLMClient:
             system_prompt: Optional custom system prompt
             
         Returns:
-            Action plan as string
+            Action plan as JSON string
         """
         if system_prompt is None:
-            system_prompt = """You are a UI automation assistant that generates executable action commands.
-Analyze the UI elements and user task to create a precise action sequence.
+            system_prompt = """You are a UI automation assistant that generates executable action commands in JSON format.
+Analyze the UI elements provided and create a precise action sequence to accomplish the user's task.
 
-Use these command formats:
-- Click(x, y, element_id, "element_description")
-- Type(x, y, element_id, "field_name", "text_to_enter")
-- Submit(x, y, element_id, "button_name")
+IMPORTANT: You MUST respond with ONLY a JSON array. No explanations, no markdown, just the JSON.
 
-Be precise with coordinates and element IDs from the analysis."""
+JSON Format:
+[
+  {
+    "action_type": "click",
+    "element_id": "<element_id_from_analysis>",
+    "coordinates": {"x": <x_coord>, "y": <y_coord>},
+    "description": "<what_this_action_does>",
+    "target": "<element_label_or_text>"
+  },
+  {
+    "action_type": "type",
+    "element_id": "<element_id_from_analysis>",
+    "coordinates": {"x": <x_coord>, "y": <y_coord>},
+    "description": "<what_to_type>",
+    "text": "<actual_text_to_enter>",
+    "target": "<field_name>"
+  }
+]
+
+Supported action_type values: click, type, submit, wait
+Always use element_id and coordinates from the provided analysis."""
         
-        user_message = f"""UI Elements Detected:
+        user_message = f"""UI Elements Analysis:
 {analysis_text}
 
 User Task: {user_command}
 
-Generate the executable action sequence:"""
+Respond with ONLY the JSON array of actions (no markdown, no explanation):"""
         
         messages = [
             {"role": "system", "content": system_prompt},
@@ -259,8 +276,21 @@ Generate the executable action sequence:"""
         ]
         
         logger.info(f"Generating action plan for: {user_command[:50]}...")
-        action_plan = self.generate(messages, temperature=0.3)  # Lower temp for consistency
+        logger.debug(f"Analysis text length: {len(analysis_text)} chars")
+        
+        # Save analysis to temp file for debugging
+        import tempfile
+        import os
+        temp_dir = "/tmp/llm_analysis"
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_file = os.path.join(temp_dir, f"analysis_{hash(analysis_text)}.txt")
+        with open(temp_file, 'w') as f:
+            f.write(analysis_text)
+        logger.info(f"Saved analysis to: {temp_file}")
+        
+        action_plan = self.generate(messages, temperature=0.1)  # Very low temp for JSON consistency
         logger.info("✓ Action plan generated")
+        logger.debug(f"Action plan preview: {action_plan[:200]}...")
         
         return action_plan
     

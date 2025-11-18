@@ -1,0 +1,200 @@
+UI Element Analysis:
+======================================================================
+
+Element 1:
+  Type: text
+  Text: "Customers"
+  Center Position: (159, 117)
+  Bounding Box: x1=101, y1=105, x2=217, y2=130
+  Confidence: 0.70
+
+Element 2:
+  Type: text
+  Text: "New Customer"
+  Center Position: (467, 112)
+  Bounding Box: x1=388, y1=100, x2=546, y2=125
+  Confidence: 0.70
+
+Element 3:
+  Type: text
+  Text: "Serena"
+  Center Position: (173, 225)
+  Bounding Box: x1=149, y1=215, x2=197, y2=236
+  Confidence: 0.70
+
+Element 4:
+  Type: text
+  Text: "Name"
+  Center Position: (411, 309)
+  Bounding Box: x1=391, y1=302, x2=431, y2=316
+  Confidence: 0.70
+
+Element 5:
+  Type: text
+  Text: "Phone Number"
+  Center Position: (440, 388)
+  Bounding Box: x1=391, y1=379, x2=489, y2=397
+  Confidence: 0.70
+
+Element 6:
+  Type: text
+  Text: "Address"
+  Center Position: (417, 546)
+  Bounding Box: x1=391, y1=538, x2=443, y2=554
+  Confidence: 0.70
+
+Element 7:
+  Type: text
+  Text: "Zang"
+  Center Position: (213, 226)
+  Bounding Box: x1=197, y1=214, x2=229, y2=238
+  Confidence: 0.70
+
+Element 8:
+  Type: icon
+  Text: "Add photo "
+  Center Position: (441, 201)
+  Bounding Box: x1=389, y1=150, x2=494, y2=253
+  Confidence: 0.70
+
+Element 9:
+  Type: icon
+  Text: "Search "
+  Center Position: (233, 169)
+  Bounding Box: x1=97, y1=151, x2=370, y2=188
+  Confidence: 0.70
+
+Element 10:
+  Type: icon
+  Text: "State "
+  Center Position: (664, 686)
+  Bounding Box: x1=612, y1=668, x2=716, y2=704
+  Confidence: 0.70
+
+Element 11:
+  Type: icon
+  Text: "Canceb "
+  Center Position: (490, 792)
+  Bounding Box: x1=459, y1=775, x2=522, y2=809
+  Confidence: 0.70
+
+Element 12:
+  Type: icon
+  Text: "Save "
+  Center Position: (414, 792)
+  Bounding Box: x1=389, y1=775, x2=439, y2=809
+  Confidence: 0.70
+
+Element 13:
+  Type: icon
+  Text: "Code "
+  Center Position: (440, 742)
+  Bounding Box: x1=388, y1=724, x2=493, y2=761
+  Confidence: 0.70
+
+Element 14:
+  Type: icon
+  Text: "City "
+  Center Position: (490, 686)
+  Bounding Box: x1=387, y1=668, x2=593, y2=705
+  Confidence: 0.70
+
+Element 15:
+  Type: icon
+  Text: "Address "
+  Center Position: (591, 575)
+  Bounding Box: x1=387, y1=557, x2=795, y2=594
+  Confidence: 0.70
+
+Element 16:
+  Type: icon
+  Text: "Address "
+  Center Position: (592, 631)
+  Bounding Box: x1=388, y1=612, x2=796, y2=651
+  Confidence: 0.70
+
+Element 17:
+  Type: icon
+  Text: "Filter"
+  Center Position: (70, 114)
+  Bounding Box: x1=53, y1=97, x2=88, y2=131
+  Confidence: 0.70
+
+Element 18:
+  Type: icon
+  Text: "Minimize"
+  Center Position: (879, 70)
+  Bounding Box: x1=855, y1=49, x2=903, y2=91
+  Confidence: 0.70
+
+Element 19:
+  Type: icon
+  Text: "a checkbox."
+  Center Position: (591, 496)
+  Bounding Box: x1=387, y1=478, x2=795, y2=515
+  Confidence: 0.70
+
+Element 20:
+  Type: icon
+  Text: "Groups"
+  Center Position: (71, 163)
+  Bounding Box: x1=55, y1=144, x2=87, y2=182
+  Confidence: 0.70
+
+Element 21:
+  Type: icon
+  Text: "Maximize window."
+  Center Position: (591, 417)
+  Bounding Box: x1=388, y1=399, x2=795, y2=436
+  Confidence: 0.70
+
+Element 22:
+  Type: icon
+  Text: "Back"
+  Center Position: (69, 72)
+  Bounding Box: x1=52, y1=50, x2=87, y2=94
+  Confidence: 0.70
+
+Element 23:
+  Type: icon
+  Text: "Maximize window"
+  Center Position: (591, 338)
+  Bounding Box: x1=388, y1=319, x2=795, y2=357
+  Confidence: 0.70
+
+Element 24:
+  Type: icon
+  Text: "Shopping"
+  Center Position: (70, 202)
+  Bounding Box: x1=55, y1=184, x2=85, y2=220
+  Confidence: 0.70
+
+Element 25:
+  Type: icon
+  Text: "Maximize"
+  Center Position: (926, 70)
+  Bounding Box: x1=904, y1=49, x2=949, y2=92
+  Confidence: 0.70
+
+Element 26:
+  Type: icon
+  Text: "Close"
+  Center Position: (973, 72)
+  Bounding Box: x1=954, y1=48, x2=993, y2=97
+  Confidence: 0.70
+
+Element 27:
+  Type: icon
+  Text: "Settings"
+  Center Position: (71, 798)
+  Bounding Box: x1=56, y1=783, x2=87, y2=814
+  Confidence: 0.70
+
+Element 28:
+  Type: icon
+  Text: "a checkbox."
+  Center Position: (125, 225)
+  Bounding Box: x1=103, y1=201, x2=147, y2=250
+  Confidence: 0.70
+
+Summary: 28 interactive elements detected

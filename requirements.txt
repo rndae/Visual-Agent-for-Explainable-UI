@@ -16,3 +16,7 @@ supervision==0.18.0
 timm
 einops==0.8.0
 accelerate
+playwright>=1.40.0
+flask>=3.0.0
+flask-cors>=4.0.0
+python-dotenv>=1.0.0

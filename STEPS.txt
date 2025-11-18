@@ -2,42 +2,65 @@
 
 ## Setup (First Time Only)
 
-1. Install LLM API dependencies:
+1. Install OmniParser API dependencies:
+   cd /home/rv/projects/vision-systems/group-project
+   python3.10 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   playwright install chromium  # Install browser for screenshots
+
+2. Install LLM API dependencies:
    cd /home/rv/projects/vision-systems/group-project
    python3.12 -m venv .venv-llm
    source .venv-llm/bin/activate
    pip install -r requirements-llms.txt
 
-2. Install Backend dependencies:
+3. Install Backend dependencies:
    cd web_system
    python3 -m venv .venv-web-system
    source .venv-web-system/bin/activate
    pip install -r backend/requirements.txt
 
-3. Install Frontend dependencies:
+4. Install Frontend dependencies:
    cd frontend
    nvm use 20  # or ensure Node.js 20+ is active
    npm install
 
+5. Configure environment:
+   - Backend .env has LLM_API_URL=http://localhost:5000
+   - Backend .env has OMNIPARSER_API_URL=http://localhost:5001
+   - (Optional) Add HUGGINGFACE_TOKEN for LLM API if using HF models
+
 ## Running the System
 
-Terminal 1 - LLM API (Port 5000):
+Terminal 1 - OmniParser API (Port 5001):
+   cd /home/rv/projects/vision-systems/group-project
+   source .venv/bin/activate
+   python omniparser_api.py
+
+Terminal 2 - LLM API (Port 5000):
    cd /home/rv/projects/vision-systems/group-project
    source .venv-llm/bin/activate
    python vlm_api.py
 
-Terminal 2 - Backend (Port 8080):
+Terminal 3 - Backend (Port 8080):
    cd /home/rv/projects/vision-systems/group-project/web_system/backend
    source ../.venv-web-system/bin/activate
    python -m uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 
-Terminal 3 - Frontend (Port 5173):
+Terminal 4 - Frontend (Port 5173):
    cd /home/rv/projects/vision-systems/group-project/web_system/frontend
    nvm use 20
    npm run dev
 
 ## Access
 Open browser: http://localhost:5173
+
+## API Endpoints
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8080/docs (FastAPI Swagger UI)
+- LLM API: http://localhost:5000/api/health
+- OmniParser API: http://localhost:5001/api/health
 
 ## Stop
 Press Ctrl+C in each terminal

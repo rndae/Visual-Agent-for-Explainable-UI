@@ -1,0 +1,46 @@
+UI Element Analysis:
+======================================================================
+
+Element 1:
+  Type: text
+  Text: "Example Domain"
+  Center Position: (485, 168)
+  Bounding Box: x1=380, y1=151, x2=591, y2=186
+  Confidence: 0.70
+
+Element 2:
+  Type: text
+  Text: "This domain"
+  Center Position: (429, 208)
+  Bounding Box: x1=380, y1=199, x2=478, y2=218
+  Confidence: 0.70
+
+Element 3:
+  Type: text
+  Text: "for use"
+  Center Position: (521, 208)
+  Bounding Box: x1=492, y1=199, x2=551, y2=218
+  Confidence: 0.70
+
+Element 4:
+  Type: text
+  Text: "documentation examples without needing permission: Avoid use"
+  Center Position: (814, 208)
+  Bounding Box: x1=567, y1=196, x2=1062, y2=221
+  Confidence: 0.70
+
+Element 5:
+  Type: text
+  Text: "operations."
+  Center Position: (1122, 209)
+  Bounding Box: x1=1079, y1=198, x2=1165, y2=221
+  Confidence: 0.70
+
+Element 6:
+  Type: icon
+  Text: "Learn more "
+  Center Position: (427, 245)
+  Bounding Box: x1=382, y1=233, x2=473, y2=258
+  Confidence: 0.70
+
+Summary: 6 interactive elements detected
