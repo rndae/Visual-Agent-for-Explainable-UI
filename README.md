@@ -4,7 +4,7 @@ Implementation of UI parsing using Microsoft's OmniParser v2 with Qwen3-VL integ
 
 ## Features
 
-- **OmniParser v2 Integration**: Real Microsoft OmniParser with YOLO icon detection + Florence2 captioning
+- **OmniParser v2 Integration**: Microsoft OmniParser with YOLO icon detection + Florence2 captioning
 - **Qwen3-VL Integration**: Vision-language model for UI summarization and action mapping
 - **Element Detection**: Identifies buttons, text fields, and interactive UI components
 - **Explainable Actions**: Maps user instructions to specific UI elements with coordinates
